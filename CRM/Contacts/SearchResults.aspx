@@ -1,4 +1,4 @@
-﻿<%@ page title="CRM - Search Contacts - Results" language="C#" masterpagefile="~/CRM.master" autoeventwireup="true" inherits="CRM_Contacts_SearchResults, App_Web_kwmjq1di" %>
+﻿<%@ page title="CRM - Search Contacts - Results" language="C#" masterpagefile="~/CRM.master" autoeventwireup="true" inherits="CRM_Contacts_SearchResults, App_Web_ikfsrtt3" %>
 
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="asp" %>
 <%@ Import Namespace="SandlerRepositories" %>
@@ -27,7 +27,8 @@
             <td colspan="2">
                 <asp:GridView Width="100%" ID="gvContacts" runat="server" DataSourceID="SearchContactDS"
                     AutoGenerateColumns="False" DataKeyNames="contactsid" AllowSorting="true" AllowPaging="true"
-                    PageSize="20" OnSelectedIndexChanged="gvContacts_SelectedIndexChanged" OnDataBound="gvContacts_DataBound">
+                    PageSize="20" OnSelectedIndexChanged="gvContacts_SelectedIndexChanged" OnDataBound="gvContacts_DataBound"
+                    OnRowDataBound="gvContacts_RowDataBound" onrowdeleted="gvContacts_RowDeleted">
                     <PagerStyle BackColor="#999999" ForeColor="Blue" CssClass="gvPager" HorizontalAlign="Center" />
                     <Columns>
                         <asp:BoundField DataField="contactsid" Visible="False" />
@@ -43,6 +44,12 @@
                             <ItemTemplate>
                                 <asp:LinkButton ID="LinkButton1" runat="server" CausesValidation="False" CommandName="Select"
                                     Text="View Detail.."></asp:LinkButton>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField  HeaderText="Archive" HeaderStyle-HorizontalAlign="Left">
+                            <ItemTemplate>
+                                <asp:LinkButton ID="archiveButton" runat="server" CausesValidation="False" CommandName="Delete" 
+                                    Text="Archive"  OnClientClick="return confirm ('Are you sure to archive this Contact record? All Pipeline records for this Contact will be archived too.');" ></asp:LinkButton>
                             </ItemTemplate>
                         </asp:TemplateField>
                     </Columns>
@@ -91,6 +98,7 @@
                             <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" HeaderStyle-ForeColor="Blue" DataField="ActionStep" HeaderText="Action Step" />
                             <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" HeaderStyle-ForeColor="Blue" DataField="LAST_CONTACT_DATE" HeaderText="Last Contact Date" DataFormatString="{0:d}" />
                             <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" HeaderStyle-ForeColor="Blue" DataField="NEXT_CONTACT_DATE" HeaderText="Next Contact Date" DataFormatString="{0:d}" />
+                            <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" HeaderStyle-ForeColor="Blue" DataField="StartTime" HeaderText="Start Time" DataFormatString="{0:t}" />
                             <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" HeaderStyle-ForeColor="Blue" DataField="LastAttemptedDate" HeaderText="Last Attempted Date" DataFormatString="{0:d}" />
                             <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" HeaderStyle-ForeColor="Blue" DataField="LastEmailedDate" HeaderText="Last Emailed Date" DataFormatString="{0:d}" />
                             <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" HeaderStyle-ForeColor="Blue" DataField="LastMeetingDate" HeaderText="Last Meeting Date" DataFormatString="{0:d}" />
@@ -117,10 +125,16 @@
         </tr>
         <tr>
             <td colspan="2">
-                <asp:ObjectDataSource ID="SearchContactDS" runat="server" TypeName="SandlerRepositories.ContactsRepository" SelectMethod="GetAllForSearch" OnSelecting="SearchContactDS_Selecting">
+                <asp:ObjectDataSource ID="SearchContactDS" runat="server" TypeName="SandlerRepositories.ContactsRepository" SelectMethod="GetAllForSearch" 
+                  DeleteMethod="ArchiveContact" OnSelecting="SearchContactDS_Selecting">
                     <SelectParameters><asp:Parameter Name="_user"  /></SelectParameters>
+                    <DeleteParameters>
+                        <asp:Parameter Name="contactsid" Type="Int32" />
+                        <asp:ControlParameter Name="CurrentUserId"  ControlID="hidCurrentUserId"/>
+                    </DeleteParameters>
                     </asp:ObjectDataSource>
                 <asp:HiddenField ID="hidContactID" runat="server" />
+                <asp:HiddenField ID="hidCurrentUserId" runat="server" />
             </td>
         </tr>
     </table>

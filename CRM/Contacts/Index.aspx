@@ -1,4 +1,4 @@
-﻿<%@ page title="CRM - View Contacts" language="C#" masterpagefile="~/CRM.master" autoeventwireup="true" enableeventvalidation="false" inherits="ContactIndex, App_Web_kwmjq1di" %>
+﻿<%@ page title="CRM - View Contacts" language="C#" masterpagefile="~/CRM.master" autoeventwireup="true" enableeventvalidation="false" inherits="ContactIndex, App_Web_ikfsrtt3" %>
 
 <%@ Import Namespace="SandlerRepositories" %>
 <%@ Register Src="../EntityMenu.ascx" TagName="EntityMenu" TagPrefix="uc1" %>
@@ -32,22 +32,31 @@
             <td>
                 <asp:GridView Width="100%" ID="gvContacts" runat="server" DataSourceID="ContactDS"
                     AutoGenerateColumns="False" DataKeyNames="contactsid" AllowSorting="true" AllowPaging="true"
-                    PageSize="20" OnSelectedIndexChanged="gvContacts_SelectedIndexChanged" OnDataBound="gvContacts_DataBound">
+                    PageSize="20" OnSelectedIndexChanged="gvContacts_SelectedIndexChanged" OnDataBound="gvContacts_DataBound"
+                    OnRowDataBound="gvContacts_RowDataBound" onrowdeleted="gvContacts_RowDeleted">
                     <PagerStyle BackColor="#999999" ForeColor="Blue" CssClass="gvPager" HorizontalAlign="Center" />
                     <Columns>
+                        <asp:TemplateField Visible="false">
+                            <ItemTemplate>
+                                <asp:HiddenField ID="hdnUserId" runat="server" Value='<%# Eval("CreatedBy") %>' />
+                            </ItemTemplate>
+                            <ItemStyle HorizontalAlign="Center" />
+                        </asp:TemplateField>
                         <asp:BoundField DataField="contactsid" Visible="False" />
-                        <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" DataField="FullName" HeaderText="Name"
-                            HeaderStyle-ForeColor="Blue" SortExpression="FullName" />
-                        <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" DataField="Phone" HeaderText="Phone"
-                            HeaderStyle-ForeColor="Blue" SortExpression="Phone" />
-                        <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" DataField="Email" HeaderText="E-mail"
-                            HeaderStyle-ForeColor="Blue" SortExpression="Email" />
-                        <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" DataField="COMPANYNAME" HeaderText="Company"
-                            HeaderStyle-ForeColor="Blue" SortExpression="COMPANYNAME" />
+                        <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" DataField="FullName" HeaderText="Name" HeaderStyle-ForeColor="Blue" SortExpression="FullName" />
+                        <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" DataField="Phone" HeaderText="Phone"   HeaderStyle-ForeColor="Blue" SortExpression="Phone" />
+                        <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" DataField="Email" HeaderText="E-mail"  HeaderStyle-ForeColor="Blue" SortExpression="Email" />
+                        <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" DataField="COMPANYNAME" HeaderText="Company" HeaderStyle-ForeColor="Blue" SortExpression="COMPANYNAME" />
                         <asp:TemplateField ShowHeader="False">
                             <ItemTemplate>
                                 <asp:LinkButton ID="LinkButton1" runat="server" CausesValidation="False" CommandName="Select"
                                     Text="View Detail.."></asp:LinkButton>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField  HeaderText="Archive" HeaderStyle-HorizontalAlign="Left">
+                            <ItemTemplate>
+                                <asp:LinkButton ID="archiveButton" runat="server" CausesValidation="False" CommandName="Delete" 
+                                    Text="Archive"  OnClientClick="return confirm ('Are you sure to archive this Contact record? All Pipeline records for this Contact will be archived too.');" ></asp:LinkButton>
                             </ItemTemplate>
                         </asp:TemplateField>
                     </Columns>
@@ -63,7 +72,7 @@
                     <asp:GridView Width="100%" ID="gvContactsExport" runat="server" DataSourceID="ContactDS"
                         AutoGenerateColumns="False" DataKeyNames="contactsid">
                         <Columns>
-                            <asp:BoundField DataField="contactsid" Visible="False" />
+                            <asp:BoundField DataField="contactsid"  HeaderText="ID" />
                             <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" DataField="FullName" HeaderText="Name"
                                 HeaderStyle-ForeColor="Blue" SortExpression="FullName" />
                             <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" DataField="Phone" HeaderText="Phone" HeaderStyle-ForeColor="Blue" SortExpression="Phone" />
@@ -94,6 +103,7 @@
                             <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" HeaderStyle-ForeColor="Blue" DataField="ActionStep" HeaderText="Action Step" />
                             <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" HeaderStyle-ForeColor="Blue" DataField="LAST_CONTACT_DATE" HeaderText="Last Contact Date" DataFormatString="{0:d}" />
                             <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" HeaderStyle-ForeColor="Blue" DataField="NEXT_CONTACT_DATE" HeaderText="Next Contact Date" DataFormatString="{0:d}" />
+                            <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" HeaderStyle-ForeColor="Blue" DataField="StartTime" HeaderText="Start Time" DataFormatString="{0:t}" />
                             <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" HeaderStyle-ForeColor="Blue" DataField="LastAttemptedDate" HeaderText="Last Attempted Date" DataFormatString="{0:d}" />
                             <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" HeaderStyle-ForeColor="Blue" DataField="LastEmailedDate" HeaderText="Last Emailed Date" DataFormatString="{0:d}" />
                             <asp:BoundField ItemStyle-HorizontalAlign="Left"  HeaderStyle-HorizontalAlign="Left" HeaderStyle-ForeColor="Blue" DataField="LastMeetingDate" HeaderText="Last Meeting Date" DataFormatString="{0:d}" />
@@ -121,20 +131,30 @@
         </tr>
         <tr>
             <td>
-                <asp:ObjectDataSource ID="ContactDS" runat="server" TypeName="SandlerRepositories.ContactsRepository" SelectMethod="GetAll" OnSelecting="ContactDS_Selecting">
+                <asp:ObjectDataSource ID="ContactDS" runat="server" 
+                TypeName="SandlerRepositories.ContactsRepository" SelectMethod="GetAll"
+                DeleteMethod="ArchiveContact" 
+                OnSelecting="ContactDS_Selecting">
                     <SelectParameters>
                         <asp:ControlParameter ControlID="ddlCompanies" Name="COMPANIESID" PropertyName="SelectedValue" Type="Int32" />
                         <asp:Parameter Name="_user"  />
                     </SelectParameters>
+                    <DeleteParameters>
+                        <asp:Parameter Name="contactsid" Type="Int32" />
+                        <asp:ControlParameter Name="CurrentUserId"  ControlID="hidCurrentUserId"/>
+                    </DeleteParameters>
                 </asp:ObjectDataSource>
             </td>
         </tr>
         <tr>
             <td>
-                <asp:ObjectDataSource ID="CompaniesDS" runat="server" TypeName="SandlerRepositories.CompaniesRepository" SelectMethod="GetCompaniesForDDL" OnSelecting="CompaniesDS_Selecting">
+                <asp:ObjectDataSource ID="CompaniesDS" runat="server" 
+                TypeName="SandlerRepositories.CompaniesRepository" 
+                SelectMethod="GetCompaniesForDDL" OnSelecting="CompaniesDS_Selecting">
                     <SelectParameters><asp:Parameter Name="_user"  /></SelectParameters>
                 </asp:ObjectDataSource>
                 <asp:HiddenField ID="hidContactID" runat="server" />
+                <asp:HiddenField ID="hidCurrentUserId" runat="server" />
             </td>
         </tr>
     </table>

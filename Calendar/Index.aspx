@@ -1,5 +1,6 @@
-﻿<%@ page title="My Account - MyCalenar" language="C#" masterpagefile="~/CRM.master" autoeventwireup="true" inherits="Calendar_Index, App_Web_dtj2s1tx" %>
+﻿<%@ page title="My Account - MyCalenar" language="C#" masterpagefile="~/CRM.master" autoeventwireup="true" inherits="Calendar_Index, App_Web_mhczqw3d" %>
 <%@ Register TagPrefix="ECalendar" Namespace="ExtendedControls" Assembly="App_Code.EventCalendar" %>
+<%@Register TagPrefix="ew"  Namespace="eWorld.UI" Assembly="eWorld.UI, Version=1.9.0.0, Culture=neutral, PublicKeyToken=24d65337282035f2" %>
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="asp" %>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="MainContent" Runat="Server">
@@ -12,7 +13,7 @@
             <th colspan="3" class="tdTC"  align="left">My Calendar : </th>
         </tr>
         <tr style="color: Black; table-layout: fixed;">
-        <td  valign="top" style="width:70%;">
+            <td  valign="top" style="width:65%;">
                 <ECalendar:EventCalendar ID="EventCal" runat="server" BackColor="White" BorderColor="Silver" 
                     BorderWidth="1px" Font-Names="Verdana"
                     Font-Size="9pt" ForeColor="Black" 
@@ -32,16 +33,17 @@
                 </ECalendar:EventCalendar>
 
         </td>
-        <td style="width:1%"></td>
-        <td valign="top">
+            <td style="width:1%"></td>
+            <td valign="top">
                 <asp:Label ID="lblInfo" runat="server"  Font-Bold="true"></asp:Label>
                 <asp:GridView ID="gvSelectedDateEvents" runat="server" AutoGenerateColumns="false" Width="100%">
                 <RowStyle BackColor="#EEEEEE" ForeColor="Black" />
                 <AlternatingRowStyle BackColor="#DCDCDC" />
                 <Columns>
-                    <%--<asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="Blue" DataField="Date" HeaderText="Date" SortExpression="Date" DataFormatString="{0:d}" />--%>
-                    <asp:BoundField ItemStyle-HorizontalAlign="Center" ItemStyle-Wrap="true" HeaderStyle-ForeColor="Blue" DataField="Description" HeaderText="Description" SortExpression="Description" />
+                    <asp:BoundField ItemStyle-HorizontalAlign="Center" ItemStyle-Wrap="true" HeaderStyle-ForeColor="Blue" DataField="Description" HeaderText="Name" SortExpression="Description" />
+                    <asp:BoundField ItemStyle-HorizontalAlign="Center" ItemStyle-Wrap="true" HeaderStyle-ForeColor="Blue" DataField="Topic" HeaderText="Topic" SortExpression="Topic" />
                     <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="Blue" DataField="Phone" HeaderText="Phone" SortExpression="Phone" />
+                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="Blue" DataField="StartTime" HeaderText="Start Time" DataFormatString="{0:t}" SortExpression="StartTime" />
                 </Columns> 
                 </asp:GridView>
 
@@ -66,22 +68,32 @@
                                 <asp:TextBox ID="FollowUpDate" Text='<%# Bind("Follow_Up_Date") %>' runat="server" />&nbsp;<asp:Image ID="calanderImageFUD" runat="server" ImageUrl="~/images/calendar.gif" ImageAlign="Middle" />
                                 <asp:CalendarExtender ID="CalendarExtender1" runat="server" TargetControlID="FollowUpDate" PopupButtonID="calanderImageFUD" CssClass="calendar"></asp:CalendarExtender>
                                 <asp:RequiredFieldValidator ID="FollowUpDateRFV" ControlToValidate="FollowUpDate" runat="server" ErrorMessage="Please Enter Follow up Date to proceed.">*</asp:RequiredFieldValidator>
+                                Start Time:
+                                <ew:TimePicker ID="tpStartTime" MinuteInterval="FifteenMinutes" Nullable="true" LowerBoundTime="5:00 AM" Width="80" UpperBoundTime="11:00 PM" ControlDisplay="TextBoxImage" ImageUrl="~/Images/timepicker.gif" runat="server" >
+                                         <TimeStyle BackColor="#336699" Font-Size="9pt" ForeColor="White"  Width="100"/>
+                                         <ClearTimeStyle BackColor="White" Font-Size="8pt" />
+                                         <SelectedTimeStyle BackColor="Yellow" Font-Size="8pt"/>
+                                </ew:TimePicker>
+                                <asp:RequiredFieldValidator ID="StartTimeRFV" ControlToValidate="tpStartTime" runat="server" ErrorMessage="Please Enter Start Time to proceed.">*</asp:RequiredFieldValidator>
                             </InsertItemTemplate>
                         </asp:TemplateField>
-                        
+                        <asp:TemplateField HeaderText="Topic :">
+                            <InsertItemTemplate>
+                                <asp:TextBox ID="txtTopic" MaxLength="50" Width="280" runat="server" Text='<%# Bind("Topic") %>'></asp:TextBox>
+                                <asp:RequiredFieldValidator ID="rfvTopicTB" ControlToValidate="txtTopic" Display="Static" InitialValue="" runat="server" ErrorMessage="Please Enter Topic to proceed.">*</asp:RequiredFieldValidator>
+                            </InsertItemTemplate>
+                        </asp:TemplateField>
                         <asp:TemplateField HeaderText="Description :">
                             <InsertItemTemplate>
                                 <asp:TextBox ID="txtDescription" MaxLength="50" Width="280" runat="server" Text='<%# Bind("Description") %>'></asp:TextBox>
                                 <asp:RequiredFieldValidator ID="rfvDescriptionTB" ControlToValidate="txtDescription" Display="Static" InitialValue="" runat="server" ErrorMessage="Please Enter Description to proceed.">*</asp:RequiredFieldValidator>
                             </InsertItemTemplate>
                         </asp:TemplateField>
-                        
                         <asp:TemplateField HeaderText="Phone :">
                             <InsertItemTemplate>
                                 <asp:TextBox ID="txtPhone" MaxLength="50" Width="280" runat="server" Text='<%# Bind("Phone") %>'></asp:TextBox>
                             </InsertItemTemplate>
                         </asp:TemplateField>
-                        
                         <asp:TemplateField ShowHeader="False">
                             <InsertItemTemplate>
                                 <asp:LinkButton ID="LinkButton1" runat="server" CausesValidation="True" CommandName="Insert" Text="Add" ForeColor="Blue" Font-Bold="true"></asp:LinkButton>&nbsp;&nbsp;
@@ -112,11 +124,8 @@
             </td>
         </tr>
 
-
-
       </table>
-
-
+      
     </ContentTemplate> 
 </asp:UpdatePanel>
 
